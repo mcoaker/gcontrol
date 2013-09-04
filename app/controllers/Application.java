@@ -1,44 +1,69 @@
 package controllers;
 
-import java.util.List;
-
-import models.Item;
-import models.Wrapper;
+import static play.data.Form.form;
+import models.User;
 import play.data.Form;
-import play.db.ebean.Model;
-import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import views.html.index;
+import views.html.login;
 
 public class Application extends Controller {
   
+	@Security.Authenticated(Secured.class)
     public static Result index() {
         return ok(index.render(""));
     }
     
-    public static Result getItems() {
-    	List<Item> items = new Model.Finder(Integer.class, Item.class).all();
-    	Wrapper wrapper = new Wrapper();
-    	wrapper.aaData = items;
-    	return ok(Json.toJson(wrapper));
+    /**
+     * Login page.
+     */
+    public static Result login() {
+        return ok(
+        	login.render(form(Login.class))
+        );
     }
     
-    public static Result createItem() {
-    	Item item = Form.form(Item.class).bindFromRequest().get();
-    	item.save();
-    	return ok("{}");
+    /**
+     * Handle login form submission.
+     */
+    public static Result authenticate() {
+        Form<Login> loginForm = form(Login.class).bindFromRequest();
+        if(loginForm.hasErrors()) {
+            return badRequest(login.render(loginForm));
+        } else {
+            session("email", loginForm.get().email);
+            return redirect(
+                routes.Application.index()
+            );
+        }
+    }
+
+    /**
+     * Logout and clean the session.
+     */
+    public static Result logout() {
+        session().clear();
+        flash("success", "You've been logged out");
+        return redirect(
+            routes.Application.login()
+        );
     }
     
-    public static Result updateItem() {
-    	Item item = Form.form(Item.class).bindFromRequest().get();
-    	item.update();
-    	return ok("{}");
-    }
+    // -- Authentication
     
-    public static Result deleteItem(int id) {
-    	Item item = (Item)new Model.Finder(Integer.class, Item.class).byId(id);
-    	item.delete();
-    	return ok("{}");
+    public static class Login {
+        
+        public String email;
+        public String password;
+        
+        public String validate() {
+            if(User.authenticate(email, password) == null) {
+                return "Invalid user or password";
+            }
+            return null;
+        }
+        
     }
 }

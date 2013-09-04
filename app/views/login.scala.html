@@ -1,0 +1,35 @@
+@(form: Form[Application.Login]) @main("Main") {
+       
+      @helper.form(routes.Application.authenticate) {
+            
+           <div class="container login">
+		    <div class="row ">
+		        <div class="center span4 well">
+		            <legend>Please Sign In</legend>
+		            
+		             @if(form.hasGlobalErrors) { 
+              	            <div class="alert alert-error">
+		   	             <a class="close" data-dismiss="alert" href="#">×</a>@form.globalError.message
+		    	        </div>
+		    	     }
+		            
+		             @if(flash.contains("success")) {
+		                <p class="success">
+		                    @flash.get("success")
+		                </p>
+		            }
+		            
+		            <form method="POST" action="" accept-charset="UTF-8">
+		            <input type="text" id="email" class="span4" name="email" placeholder="Email" value="@form("email").value"/>
+		            <input type="password" id="password" class="span4" name="password" placeholder="Password" />
+	
+		            <button type="submit" name="submit" class="btn btn-primary btn-block">Sign in</button>
+		            </form>
+		        </div>
+		    </div>
+		</div>
+
+            
+      }
+        
+}

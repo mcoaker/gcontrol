@@ -4,10 +4,14 @@
 
 # Home page
 GET     /                           controllers.Application.index()
-GET		/items						controllers.Application.getItems()
-POST	/items						controllers.Application.createItem()
-PUT		/items						controllers.Application.updateItem()
-DELETE	/items/:id					controllers.Application.deleteItem(id: Integer)
+GET     /login                  	controllers.Application.login()
+POST    /login                      controllers.Application.authenticate()
+GET     /logout                     controllers.Application.logout()
+
+GET		/items						controllers.Items.getItems()
+POST	/items						controllers.Items.createItem()
+PUT		/items						controllers.Items.updateItem()
+DELETE	/items/:id					controllers.Items.deleteItem(id: Integer)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
