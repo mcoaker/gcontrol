@@ -2,6 +2,8 @@
        
       @helper.form(routes.Application.authenticate) {
             
+           <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/login.css")">
+            
            <div class="container login">
 		    <div class="row ">
 		        <div class="center span4 well">
@@ -9,7 +11,7 @@
 		            
 		             @if(form.hasGlobalErrors) { 
               	            <div class="alert alert-error">
-		   	             <a class="close" data-dismiss="alert" href="#">×</a>@form.globalError.message
+		   	             <a class="close" data-dismiss="alert" href="#">x</a>@form.globalError.message
 		    	        </div>
 		    	     }
 		            
