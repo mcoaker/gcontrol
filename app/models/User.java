@@ -18,10 +18,10 @@ public class User extends Model {
 
     @Id
     @Constraints.Required
-    @Formats.NonEmpty
     public String email;
     
     @Constraints.Required
+    @Formats.NonEmpty
     public String name;
     
     @Constraints.Required
@@ -41,16 +41,16 @@ public class User extends Model {
     /**
      * Retrieve a User from email.
      */
-    public static User findByEmail(String email) {
-        return find.where().eq("email", email).findUnique();
+    public static User findByEmail(String name) {
+        return find.where().eq("name", name).findUnique();
     }
     
     /**
      * Authenticate a User.
      */
-    public static User authenticate(String email, String password) {
+    public static User authenticate(String name, String password) {
         return find.where()
-            .eq("email", email)
+            .eq("name", name)
             .eq("password", password)
             .findUnique();
     }

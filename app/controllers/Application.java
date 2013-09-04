@@ -33,7 +33,7 @@ public class Application extends Controller {
         if(loginForm.hasErrors()) {
             return badRequest(login.render(loginForm));
         } else {
-            session("email", loginForm.get().email);
+            session("name", loginForm.get().name);
             return redirect(
                 routes.Application.index()
             );
@@ -55,11 +55,11 @@ public class Application extends Controller {
     
     public static class Login {
         
-        public String email;
+        public String name;
         public String password;
         
         public String validate() {
-            if(User.authenticate(email, password) == null) {
+            if(User.authenticate(name, password) == null) {
                 return "Invalid user or password";
             }
             return null;

@@ -233,6 +233,29 @@ $(document).ready(function() {
 		    }
     } );
 	
+	// Delete a record (without asking a user for confirmation)
+	$('#items').on('click', 'a.editor_add', function (e) {
+		alert('add');
+		e.preventDefault();
+		alert($(this).parents('tr')[0]);
+		editor.edit(
+				$(this).parents('tr')[0],
+				'Edit record',
+				{ "label": "Update", "fn": function () { editor.submit() } }
+			);
+		//editor.remove( $(this).parents('tr')[0], '123', false, false );
+		//editor.submit();
+	} );
+	
+	// Delete a record (without asking a user for confirmation)
+	$('#items').on('click', 'a.editor_remove', function (e) {
+		alert('remove');
+		e.preventDefault();
+		alert($(this).parents('tr')[0]);
+		//editor.remove( $(this).parents('tr')[0], '123', false, false );
+		//editor.submit();
+	} );
+	
 	$('#items').dataTable( {
 		//"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
 		"sDom": "<'row-fluid'<'span6'T><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
@@ -244,10 +267,17 @@ $(document).ready(function() {
 			},
 		"iDisplayLength": 25,
 		"aoColumns":[
-            {"mDataProp":"name"},
-            {"mDataProp":"description"},
-            {"mDataProp":"quantity"},
-            {"mDataProp":"unit"}
+            {"mData":"name"},
+            {"mData":"description"},
+            {"mData":null, 
+            	"mRender": function ( data, type, row ) {
+            		return row.quantity + ' ' + row.unit;
+            	}},
+			{
+				"mData": null, 
+				"sClass": "center",
+				"sDefaultContent": '<div nowrap><a href="#" class="editor_add btn btn-mini"><i class="icon-minus-sign"></i></a> <a href="#" class="editor_remove btn btn-mini"><i class="icon-plus-sign"></i></a></div>'
+			}
           ],
       "oTableTools": {
     	"sRowSelect": "single",
