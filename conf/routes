@@ -10,7 +10,7 @@ GET     /logout                     controllers.Application.logout()
 
 GET		/items						controllers.Items.getItems()
 POST	/items						controllers.Items.createItem()
-PUT		/items						controllers.Items.updateItem()
+PUT		/items/:id					controllers.Items.updateItem(id: Integer)
 DELETE	/items/:id					controllers.Items.deleteItem(id: Integer)
 
 # Map static resources from the /public folder to the /assets URL path

@@ -26,8 +26,9 @@ public class Items extends Controller {
     	return ok("{}");
     }
     
-    public static Result updateItem() {
+    public static Result updateItem(int id) {
     	Item item = Form.form(Item.class).bindFromRequest().get();
+    	item.id = id;
     	item.update();
     	return ok("{}");
     }

@@ -55,6 +55,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 		},
 
 		"fnUpdate": function ( oSettings, fnDraw ) {
+
 			var iListLength = 5;
 			var oPaging = oSettings.oInstance.fnPagingInfo();
 			var an = oSettings.aanFeatures.p;
@@ -146,7 +147,27 @@ if ( $.fn.DataTable.TableTools ) {
 	} );
 }
 
+/* Custom filtering function which will filter data in column four between two values */
+$.fn.dataTableExt.afnFiltering.push(
+	function( oSettings, aData, iDataIndex ) {
+		var missingOnly = document.getElementById('missingOnly').checked;
+		
+		var quantity = aData[2].split(" ")[0];
+		
+		if ( missingOnly && quantity == 0 )
+		{
+			return true;
+		} 
+		else if ( !missingOnly && quantity > 0 ) 
+		{
+			return true;
+		} 
+		return false;
+	}
+);
+
 var editor; 
+var oTable;
 
 /* Table initialization */
 $(document).ready(function() {
@@ -154,23 +175,34 @@ $(document).ready(function() {
 	editor = new $.fn.dataTable.Editor( {
         "ajaxUrl": {
 			"create": "POST /items",
-			"edit": "PUT /items?id=_id_",
+			"edit": "PUT /items/_id_",
 			"remove": "DELETE /items/_id_"
 		},
         "domTable": "#items",
-        "idSrc": "id",
+        "idSrc": "id",       
         "fields": [ {
                 "label": "Name:",
                 "name": "name",
                 "type": "text"
             }, {
-                "label": "Description:",
-                "name": "description",
-                "type": "text"                	
-            }, {
                 "label": "Quantity:",
                 "name": "quantity",
                 "type": "text"
+            }, {
+                "label": "Id:",
+                "name": "id",
+                "type": "hidden",
+                "default": "0"
+            }, {
+                "label": "Category:",
+                "name": "category",
+                "type": "select",
+                "ipOpts": [
+							{ "label": "Almacen",  "value": "Almacen" },
+							{ "label": "Congelados", "value": "Congelados" },
+							{ "label": "Limpieza", "value": "Limpieza" },
+							{ "label": "Varios",     "value": "Varios" }
+						]
             }, {
                 "label": "Unit:",
                 "name": "unit",
@@ -185,9 +217,7 @@ $(document).ready(function() {
         ],
         "events": {
 			"onPreSubmit": function ( o ) {
-				
-				if (o.data.action == "create" || o.data.action == "edit") {
-				
+				try {				
 					if ( o.data.name === "" ) {
 						this.error('name', 'A Name must be given');
 						return false;
@@ -196,25 +226,18 @@ $(document).ready(function() {
 						this.error('name', 'The name value must be less that 40 characters');
 						return false;
 					}
-	
-					if ( o.data.description === "" ) {
-						this.error('description', 'A description must be given');
-						return false;
-					}
-					else if ( o.data.description.length >= 60 ) {
-						this.error('description', 'The description value must be less that 60 characters');
-						return false;
-					}
-	
-					if ( o.data.quantity === "" ) {
+				} catch (err) { console.log(err); }
+
+				try {			
+					if ( !isNumber(o.data.quantity) ) {
 						this.error('quantity', 'A quantity must be set');
 						return false;
 					}
 					else if ( o.data.quantity.length >= 6 ) {
 						this.error('quantity', 'The quantity value must be less that 6 characters');
 						return false;
-					}				
-				}
+					}
+				} catch (err) { console.log(err); }
 			}
 		},
 		"ajax": function ( method, url, data, successCallback, errorCallback ) {
@@ -224,7 +247,9 @@ $(document).ready(function() {
 		        "data": data.data,
 		        "dataType": "json",
 		        "success": function (json) {
-		          successCallback( json );
+		        	successCallback( json );
+		        	$('#items').css( "width", "" );
+		        	//console.dir ( oTable.fnSettings().aoData );
 		        },
 		        "error": function (xhr, error, thrown) {
 		          errorCallback( xhr, error, thrown );
@@ -232,33 +257,40 @@ $(document).ready(function() {
 		      } );
 		    }
     } );
-	
-	// Delete a record (without asking a user for confirmation)
+
 	$('#items').on('click', 'a.editor_add', function (e) {
-		alert('add');
 		e.preventDefault();
-		alert($(this).parents('tr')[0]);
-		editor.edit(
-				$(this).parents('tr')[0],
-				'Edit record',
-				{ "label": "Update", "fn": function () { editor.submit() } }
-			);
-		//editor.remove( $(this).parents('tr')[0], '123', false, false );
-		//editor.submit();
+
+		editor.edit( $(this).parents('tr')[0] , null, null, false );
+		
+		quantity = parseInt(editor.get('quantity'));
+		quantity += 1;
+
+		editor.set( 'quantity', quantity );
+		
+		editor.submit();
+
 	} );
 	
-	// Delete a record (without asking a user for confirmation)
 	$('#items').on('click', 'a.editor_remove', function (e) {
-		alert('remove');
 		e.preventDefault();
-		alert($(this).parents('tr')[0]);
-		//editor.remove( $(this).parents('tr')[0], '123', false, false );
-		//editor.submit();
+		
+		editor.edit( $(this).parents('tr')[0] , null, null, false );
+		
+		quantity = parseInt(editor.get('quantity'));
+		quantity -= 1;
+		
+		if (quantity < 0) {
+			quantity = 0;
+		}
+		
+		editor.set( 'quantity', quantity );
+		editor.submit();
+				
 	} );
 	
-	$('#items').dataTable( {
-		//"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-		"sDom": "<'row-fluid'<'span6'T><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+	oTable = $('#items').dataTable( {
+		"sDom": "<'row-fluid'<'span6'T><'span6'f>r>t<'row-fluid'<'span6 custom'><'span6'p>>",
 		"sPaginationType": "bootstrap",
 		"bProcessing": true,
 		"sAjaxSource": "/items",
@@ -268,15 +300,16 @@ $(document).ready(function() {
 		"iDisplayLength": 25,
 		"aoColumns":[
             {"mData":"name"},
-            {"mData":"description"},
+            {"mData":"category"},
             {"mData":null, 
+				"sClass": "text-center",
             	"mRender": function ( data, type, row ) {
             		return row.quantity + ' ' + row.unit;
             	}},
 			{
 				"mData": null, 
-				"sClass": "center",
-				"sDefaultContent": '<div nowrap><a href="#" class="editor_add btn btn-mini"><i class="icon-minus-sign"></i></a> <a href="#" class="editor_remove btn btn-mini"><i class="icon-plus-sign"></i></a></div>'
+				"sClass": "center nowrap",
+				"sDefaultContent": '<div nowrap class="text-center"><a href="#" class="editor_remove"><i class="icon-minus-sign"></i></a>&nbsp;&nbsp;<a href="#" class="editor_add"><i class="icon-plus-sign"></i></a></div>'
 			}
           ],
       "oTableTools": {
@@ -288,4 +321,12 @@ $(document).ready(function() {
       ]}
 	});
 	
+	$("div.custom").html('<label class="checkbox"><input id="missingOnly" type="checkbox" value="yes"> Show missing only</label>');
+
+	
+	$('#missingOnly').change( function() { oTable.fnDraw(); } );
 });
+
+function isNumber(n) {
+	  return !isNaN(parseFloat(n)) && isFinite(n);
+	}

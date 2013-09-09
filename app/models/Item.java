@@ -11,9 +11,9 @@ public class Item extends Model {
 	@Id
 	public int id;
 	
-	public String name;
+	public String category;
 	
-	public String description;
+	public String name;
 	
 	public long quantity;
 	

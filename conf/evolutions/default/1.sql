@@ -5,8 +5,8 @@
 
 create table item (
   id                        integer not null,
+  category                  varchar(255),
   name                      varchar(255),
-  description               varchar(255),
   quantity                  bigint,
   unit                      varchar(255),
   constraint pk_item primary key (id))
