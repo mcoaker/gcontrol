@@ -200,7 +200,7 @@ $(document).ready(function() {
                 "ipOpts": [
 							{ "label": "Almacen",  "value": "Almacen" },
 							{ "label": "Congelados", "value": "Congelados" },
-							{ "label": "Heladera", "value": "Congelados" },
+							{ "label": "Heladera", "value": "Heladera" },
 							{ "label": "Limpieza", "value": "Limpieza" },
 							{ "label": "Varios",     "value": "Varios" }
 						]
